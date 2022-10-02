@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVM GUI</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+
+        * {
+            padding: 0;
+            margin: 0;
+            user-select: none;
+        }
+        
+        html,body {
+            overflow: hidden;
+            font-family: system-ui;
+            color: ButtonText;
+            background-color: Canvas;
+            height: 100%;
+        }
+
+        body {
+            padding: 0 1em;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        #inner {
+            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        #side {
+            height: 80%;
+            margin-right: 2em;
+            margin-left: 1em;
+        }
+
+        h1,p {
+            margin: 0;
+        }
+
+        p {
+            margin-bottom: .5em;
+            font-size: .75em;
+        }
+
+        h1 {
+            font-size: 1em;
+        }
+
+        #logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #close-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 2em;
+            height: 2em;
+            cursor: pointer;
+        }
+
+        #close-btn:before,
+        #close-btn:after {
+            content: '';
+            width: .5em;
+            height: .1em;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            background-color: ButtonText;
+            opacity: .5;
+        }
+
+        #close-btn:after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+    </style>
+</head>
+<body>
+    <span id="close-btn" onClick="window.api.close(window._nid)"></span>
+    <div id="container">
+        <div id="side">
+            <img id="logo" alt="NVM GUI" src="data:image/png;base64,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" />
+        </div>
+        <div id="inner">
+            <h1 id="title"></h1>
+            <p id="text"></p>
+        </div>
+    </div>
+    <script>
+        window.api.listen( 'notify', data => {
+            const
+                title = data.title || 'NVM GUI',
+                text = data.text || 'No text provided'
+
+            window._nid = data.id
+
+            document.getElementById( 'title' ).textContent = title
+            document.getElementById( 'text' ).textContent = text
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVM GUI</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+        
+        * {
+            padding: 0;
+            margin: 0;
+            user-select: none;
+            box-sizing: border-box;
+        }
+        
+        html,body {
+            overflow: hidden;
+            font-family: system-ui;
+            color: ButtonText;
+            height: 100%;
+        }
+
+        #spin-overlay {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+            background-color: #202124;
+        }
+
+        #spin-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #spin-overlay.visible.semi {
+            opacity: .5;
+            pointer-events: all;
+        }
+
+        #controls {
+            background-color: #292a2d;
+            padding: 1em;
+            flex: 0 0 auto;
+        }
+
+        #wrap {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+        
+        #container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 100%;
+            overflow: hidden;
+        }
+        
+        #inner {
+            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        
+        #side {
+            height: 80%;
+            margin-right: 2em;
+            margin-left: 1em;
+        }
+        
+        h1,p {
+            margin: 0;
+        }
+        
+        p {
+            margin-bottom: .5em;
+            font-size: .75em;
+        }
+        
+        h1 {
+            font-size: 1em;
+        }
+        
+        #logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .loader {
+            width: 150px;
+            height: 150px;
+            transform: scale(.5);
+        }
+        svg {
+            width: 90%;
+            fill: none;
+        }
+        
+        .load {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 570;
+            stroke-dashoffset: 570;
+            stroke-width: 20px;
+            opacity: 0;
+        }
+
+            .load.one {
+                stroke: ButtonText;
+                stroke-opacity: .1;
+                animation: load 1.5s infinite;
+            }
+
+            .load.two {
+                stroke: ButtonText;
+                stroke-opacity: .25;
+                animation: load 1.5s infinite;
+                animation-delay: 0.25s;
+            }
+
+            .load.three {
+                stroke: ButtonText;
+                stroke-opacity: .5;
+                animation: load 1.5s infinite;
+                animation-delay: 0.5s;
+            }
+
+            .load.four {
+                stroke: ButtonText;
+                stroke-opacity: .1;
+                animation: load 1.5s infinite;
+                animation-delay: .75s;
+            }
+
+            .load.five {
+                stroke: ButtonText;
+                stroke-opacity: .25;
+                animation: load 1.5s infinite;
+                animation-delay: 1s;
+            }
+
+            .load.six {
+                stroke: ButtonText;
+                stroke-opacity: .5;
+                animation: load 1.5s infinite;
+                animation-delay: 1.25s;
+            }
+
+        @keyframes load {
+            0% {
+                opacity: 1;
+                stroke-dashoffset: 570;
+            }
+            50% {
+                opacity: 1;
+                stroke-dashoffset: 530;
+            }
+            100% {
+                opacity: 1;
+                stroke-dashoffset: 570;
+                transform: rotate(360deg);
+            }
+        }
+
+        .table-wrap {
+            background-color: #202124;
+            color: #e8eaed;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 1em;
+        }
+
+        table {
+            width: 100%;
+            table-layout: auto;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            padding: .5em 1em;
+            font-size: .75em;
+            border: 1px solid #292a2d;
+            text-align: center;
+            min-width: 10em;
+        }
+
+        table th {
+            background-color: #292a2d;
+            border-color: #202124;
+        }
+
+        table th:nth-child(1),
+        table td:nth-child(1) {
+            font-size: .5em;
+            white-space: nowrap;
+            min-width: 5em;
+        }
+
+        table th:nth-child(2),
+        table td:nth-child(2) {
+            width: 100%;
+            text-align: left;
+        }
+
+        table td:nth-child(2) {
+            font-size: 1em;
+        }
+
+        table td a {
+            display: inline-block;
+            padding: .2em .5em;
+            background-color: #424242;
+            color: #e8eaed;
+            border-radius: .25em;
+            line-height: 1em;
+            height: 1.4em;
+            text-decoration: none;
+        }
+
+        table td a:hover {
+            background-color: #686868;
+        }
+
+        table td a.remove {
+            background-color: #5c0000;
+        }
+
+        table td a.remove:hover {
+            background-color: #984242;
+        }
+
+        table td a.install {
+            background-color: #7e9617;
+        }
+
+        table td a.install:hover {
+            background-color: #b7c47f;
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        #controls > * {
+            flex: 0 0 auto;
+            margin-right: 1em;
+        }
+
+        #controls label {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            font-size: .75em;
+            color: #9aa0a6;
+        }
+
+        #controls label select,
+        #controls label input {
+            margin-top: .2em;
+            font-size: 1.1em;
+        }
+
+        #controls label select {
+            width: 5em;
+        }
+
+        .empty-data {
+            padding: 2em 0;
+        }
+
+        .empty-data p:first-child {
+            font-size: 1.5em;
+        }
+
+        .small-spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border: .25em solid currentColor;
+            border-right-color: transparent;
+            opacity: .5;
+            border-radius: 50%;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #error-overlay,
+        #question-overlay {
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba( 0, 0, 0, .5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+
+        #error-overlay.visible,
+        #question-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .dialog-wrap {
+            width: 50%;
+            padding: 2em 1em 1em;
+            background-color: #494c50;
+            font-size: .75em;
+            border-radius: 1em;
+            position: relative;
+        }
+
+        .close-btn {
+            display: block;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 2em;
+            height: 2em;
+            cursor: pointer;
+        }
+
+        .close-btn:before,
+        .close-btn:after {
+            content: '';
+            width: 1em;
+            height: .2em;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            background-color: ButtonText;
+            opacity: .5;
+        }
+
+        .close-btn:after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+
+        .dialog-buttons {
+            margin-top: 1em;
+            padding-top: 1em;
+            border-top: 1px solid #686868;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .dialog-buttons button {
+            min-width: 5em;
+            padding: .5em 1em;
+            border: none;
+            border-radius: .2em;
+            margin-right: 1em;
+            background-color: #424242;
+            color: #e8eaed;
+            cursor: pointer;
+        }
+
+        .dialog-buttons button:hover {
+            background-color: #686868;
+        }
+
+        .dialog-buttons button:last-child {
+            margin-right: 0;
+        }
+
+        .dialog-buttons button.ghost {
+            background-color: transparent;
+        }
+
+        .dialog-buttons button.ghost:hover {
+            background-color: #686868;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <div id="controls">
+            <label>
+                <span>Filter by type:</span>
+                <select disabled="disabled" id="type-filter" placeholder="Filter by type" onchange="setFilter(event)">
+                </select>
+            </label>
+            <label>
+                <span>Search in list:</span>
+                <input disabled="disabled" id="search" placeholder="Type version" onkeyup="setSearch(event)"
+            </label>
+        </div>
+        <div id="container">
+        </div>
+        <div id="spin-overlay" class="visible">
+            <div class="loader">
+                <svg viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <circle class="load one" cx="60" cy="60" r="40" />
+                    <circle class="load two" cx="60" cy="60" r="40" />
+                    <circle class="load three" cx="60" cy="60" r="40" />
+                    <circle class="load four" cx="60" cy="60" r="40" />
+                    <circle class="load five" cx="60" cy="60" r="40" />
+                    <circle class="load six" cx="60" cy="60" r="40" />
+                </svg>
+            </div>
+        </div>
+        <div id="error-overlay">
+            <div class="dialog-wrap">
+                <span class="close-btn" onclick="closeError()"></span>
+                <div id="error-content"></div>
+                <footer class="dialog-buttons">
+                    <button class="error-ok" onclick="closeError()">OK</button>
+                </footer>
+            </div>
+        </div>
+        <div id="question-overlay">
+            <div class="dialog-wrap">
+                <span class="close-btn" onclick="closeQuestion( false )"></span>
+                <div id="question-content"></div>
+                <footer class="dialog-buttons">
+                    <button class="question-ok ghost" onclick="closeQuestion( true )">Proceed</button>
+                    <button class="question-cancel" onclick="closeQuestion( false )">Cancel</button>
+                </footer>
+            </div>
+        </div>
+    </div>
+    <script>
+        /* MAIN */
+
+        initState()
+        loadData()
+
+        /* /MAIN */
+
+        function initState () {
+            window._app_state = {
+                filter: '',
+                search: ''
+            }
+        }
+
+        function setState ( key, value ) {
+            window._app_state[key] = value
+        }
+
+        function getState ( key ) {
+            return window._app_state[key] || ''
+        }
+
+        function applySpinner () {
+            document.getElementById( 'spin-overlay' ).classList.add( 'visible' )
+            document.getElementById( 'type-filter' ).setAttribute( 'disabled', 'disabled' )
+            document.getElementById( 'search' ).setAttribute( 'disabled', 'disabled' )
+        }
+
+        function smallSpinner ( node ) {
+            node.parentNode.innerHTML = '<span class="small-spinner"></span>'
+        }
+
+        function loadData () {
+            window.api.available( available => {
+                window.api.installed( installed => {
+                    window.api.current( current => {
+                        buildFilter({ available, installed })
+                        setState( 'lastData', { available, installed, current })
+                        buildTable({ available, installed, current })
+                    })
+                })
+            })
+        }
+
+        function reloadData ( silent ) {
+            ;( !silent ) && ( applySpinner())
+            loadData()
+        }
+
+        function showQuestion ( text, onOk, onCancel ) {
+            const
+                overlay = document.getElementById( 'question-overlay' ),
+                content = document.getElementById( 'question-content' )
+
+            setState( 'onQuestionOk', onOk )
+            setState( 'onQuestionCancel', onCancel )
+            content.innerText = text.trim()
+
+            overlay.classList.add( 'visible' )
+        }
+
+        function closeQuestion ( state ) {
+            const
+                onOk = getState( 'onQuestionOk' ),
+                onCancel = getState( 'onQuestionCancel' ),
+                overlay = document.getElementById( 'question-overlay' ),
+                content = document.getElementById( 'question-content' )
+
+            setState( 'onQuestionOk', '' )
+            setState( 'onQuestionCancel', '' )
+
+            overlay.classList.remove( 'visible' )
+            document.getElementById( 'type-filter' ).removeAttribute( 'disabled' )
+            document.getElementById( 'search' ).removeAttribute( 'disabled' )
+            ;( state )
+                ? ( onOk ) && ( onOk() )
+                : ( onCancel ) && ( onCancel() )
+        }
+
+        function showError ( text, cb ) {
+            const
+                overlay = document.getElementById( 'error-overlay' ),
+                content = document.getElementById( 'error-content' )
+
+            setState( 'onErrorClose', cb )
+            content.innerText = text.trim()
+
+            overlay.classList.add( 'visible' )
+        }
+
+        function closeError () {
+            const
+                cb = getState( 'onErrorClose' ),
+                overlay = document.getElementById( 'error-overlay' ),
+                content = document.getElementById( 'error-content' )
+
+            setState( 'onErrorClose', '' )
+
+            overlay.classList.remove( 'visible' )
+            document.getElementById( 'type-filter' ).removeAttribute( 'disabled' )
+            document.getElementById( 'search' ).removeAttribute( 'disabled' )
+            ;( cb ) && ( cb() )
+        }
+
+        function cantUse ( target ) {
+            let
+                row = target
+            
+            while ( row && row.tagName !== 'TR' ) {
+                row = target.parentNode
+            }
+
+            if ( row ) {
+                const
+                    use = row.querySelector( 'a.use' )
+
+                ;( use ) && ( use.parentNode.removeChild( use ))
+            }
+        }
+
+        function useNodeVersion ( version ) {
+            applySpinner()
+            window.api.use( version, () => {
+                reloadData()
+            })
+        }
+
+        function removeNodeVersion ( version, target ) {
+            showQuestion( 
+                `Are you sure to remove Node v${version}?`,
+                () => {
+                    smallSpinner( target )
+                    cantUse( target )
+                    window.api.remove( version, () => {
+                        reloadData( true )
+                    })
+                }
+            )
+        }
+
+        function installNodeVersion ( version, target ) {
+            smallSpinner( target )
+            window.api.install( version, () => {
+                reloadData( true )
+            })
+        }
+
+        function installSpecified ( version ) {
+            applySpinner()
+            window.api.install( version, text => {
+                if ( text.indexOf( 'is not available' ) > -1 ) {
+                    showError( text, () => {
+                        buildTable( getState( 'lastData' ))
+                    })
+                } else {
+                    reloadData( true )
+                }
+            })
+        }
+
+        function clearFilters () {
+            setState( 'filter', '' )
+            setState( 'search', '' )
+
+            document.getElementById( 'type-filter' ).value = 'ALL'
+            document.getElementById( 'search' ).value = ''
+
+            buildTable( getState( 'lastData' ))
+        }
+
+        function setFilter ( e ) {
+            setState( 'filter', e.target.value )
+            buildTable( getState( 'lastData' ))
+        }
+
+        function setSearch ( e ) {
+            setState( 'search', e.target.value.trim() )
+            buildTable( getState( 'lastData' ))
+        }
+
+        function isFullVersion ( version ) {
+            const
+                split = version.trim().replace( /[ ]+/g, '' ).split( '.' )
+
+            return (
+                split.length === 3 && 
+                parseInt( split[0] ).toString() === split[0] &&
+                parseInt( split[1] ).toString() === split[1] &&
+                parseInt( split[2] ).toString() === split[2]
+            )
+        }
+
+        function buildFilter({ available, installed }) {
+            const
+                types = [ 'ALL' ],
+                filter = document.getElementById( 'type-filter' )
+
+            available.forEach( item => {
+                ;( !types.includes( item.type )) && ( types.push( item.type ))
+            })
+
+            types.push( 'UNKNOWN' )
+
+            filter.innerHTML = ''
+
+            types.forEach( type => {
+                const
+                    readable = [ 'LTS' ].includes( type ) ? type : `${type[0].toUpperCase()}${type.substring( 1 ).toLocaleLowerCase()}`,
+                    option = document.createElement( 'option' ),
+                    current = getState( 'filter' )
+
+                option.innerText = readable
+                option.id = type
+                option.value = type
+                ;( current === type ) && ( option.setAttribute( 'selected', 'selected' ))
+
+                filter.appendChild( option )
+            })
+
+            filter.removeAttribute( 'disabled' )
+            document.getElementById( 'search' ).removeAttribute( 'disabled' )
+        }
+        
+        function buildTable ( raw ) {
+            const
+                data = applyFilters( normalize( raw )),
+                search = getState( 'search' )
+
+            let
+                table = `<div class="table-wrap"><table><thead><tr><th>&nbsp;</th><th>Version</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tbody>`
+
+            data.forEach(( node, index ) => {
+                table += `<tr class="node-${node.id}"><td>${node.type}</td><td>${node.version}</td><td>${node.current ? 'Current' : node.installed ? `<a href="#" class="use" onclick="useNodeVersion('${node.version}')">Use</a>` : ''}</td><td>${node.installed ? `<a href="#" class="remove" onclick="removeNodeVersion('${node.version}', this)">Remove</a>` : `<a href="#" class="install" onclick="installNodeVersion('${node.version}', this)">Install</a>`}</td></tr>`
+            })
+
+            table += '</tbody></table>'
+
+            if ( data.length > 0 ) {
+                table += '</div>'
+            } else {
+                table += '<div class="empty-data">'
+                table += '<p><strong>Nothing found</strong>.<p>'
+                
+                if ( !!search && isFullVersion( search ) ) {
+                    table += `<p>Do you want to <a href="#" onclick="installSpecified('${search}')">install version ${search}</a>?</p>`
+                }
+
+                table += '<p><a href="#" onclick="clearFilters()">Clear filters</a></p>'
+                table += '</div></div>'
+            }
+
+            document.getElementById( 'container' ).innerHTML = table
+            document.getElementById( 'spin-overlay' ).classList.remove( 'visible' )
+            document.getElementById( 'spin-overlay' ).classList.add( 'semi' )
+        }
+
+        function applyFilters ( data ) {
+            const
+                byType = getState( 'filter' ),
+                search = getState( 'search' )
+
+            return data
+                .filter( item => byType === 'ALL' || !byType || item.type === byType )
+                .filter( item => !search || item.version.indexOf( search ) > -1 )
+        }
+        
+        function normalize({ available, installed, current }) {
+            const
+            res = []
+            
+            available.forEach(({ version, type }) => {
+                res.push({
+                    id: `v-${version}`,
+                    label: version,
+                    version,
+                    type,
+                    installed: installed.includes( version ),
+                    current: current === version
+                })
+            })
+
+            installed.forEach( version => {
+                if ( !res.find( item => item.version === version ) ) {
+                    res.push({
+                        id: `v-${version}`,
+                        label: version,
+                        version,
+                        type: 'UNKNOWN',
+                        installed: true,
+                        current: current === version
+                    })
+                }
+            })
+            
+            return res.sort(( a, b ) => {
+                if ( a.installed && !b.installed ) return -1
+                if ( b.installed && !a.installed ) return 1
+                return 0
+            })
+        }
+    </script>
+</body>
+</html>

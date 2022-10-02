@@ -1,0 +1,8 @@
+ERRBOX: A JavaScript error occurred in the main process: Uncaught Exception:
+TypeError: Object has been destroyed
+    at ControlWindow.show (D:\projects\coding\desktop\nvmgui\modules\ControlWindow\ControlWindow.js:28:27)
+    at Object.configure (D:\projects\coding\desktop\nvmgui\modules\commands\commands.js:20:32)
+    at Commands.run (D:\projects\coding\desktop\nvmgui\modules\commands\commands.js:104:27)
+    at item.click (D:\projects\coding\desktop\nvmgui\modules\menu\menu.js:96:35)
+    at MenuItem.click (node:electron/js2c/browser_init:73:1908)
+    at a._executeCommand (node:electron/js2c/browser_init:81:2453)

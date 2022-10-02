@@ -1,0 +1,53 @@
+{
+	"name": "nvmgui",
+	"version": "0.0.1",
+	"private": true,
+	"homepage": "./",
+	"build": {
+		"appId": "nwlab.nvmgui",
+		"mac": {
+			"category": "nwlab.nvmgui.idontknow"
+		},
+		"extends": null,
+		"files": [
+			"main.js",
+			"modules",
+			"!node_modules/**/*",
+			"build/**/*",
+			"package.json"
+		],
+		"win": {
+			"requestedExecutionLevel": "requireAdministrator",
+			"target": [
+				"portable"
+			]
+		},
+		"portable": {
+			"artifactName": "nvmgui.exe"
+		}
+	},
+	"dependencies": {
+		"electron-notifications": "^1.0.0"
+	},
+	"main": "main.js",
+	"scripts": {
+		"start": "electron .",
+		"build": "electron-builder --dir"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"electron": "^20.2.0",
+		"electron-builder": "^23.3.3"
+	}
+}
