@@ -2,7 +2,7 @@ const
     Admin         = require( './admin/admin' ),
     CLI           = require( './cli/cli' ),
     Commands      = require( './commands/commands' ),
-    ControlWindow = require( './ControlWindow/ControlWindow' ),
+    ControlWindow = require( './controlWindow/controlWindow' ),
     Icons         = require( './icons/icons' ),
     Menu          = require( './menu/menu' ),
     Tray          = require( './tray/tray' )

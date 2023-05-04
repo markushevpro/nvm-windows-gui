@@ -1,6 +1,6 @@
 {
 	"name": "nvmgui",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"private": true,
 	"homepage": "./",
 	"build": {
@@ -9,13 +9,6 @@
 			"category": "nwlab.nvmgui.idontknow"
 		},
 		"extends": null,
-		"files": [
-			"main.js",
-			"modules",
-			"!node_modules/**/*",
-			"build/**/*",
-			"package.json"
-		],
 		"win": {
 			"requestedExecutionLevel": "requireAdministrator",
 			"target": [
